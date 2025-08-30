@@ -1,0 +1,30 @@
+#!/bin/bash
+
+yum update -y
+yum install docker git nmap-ncat tmux -y
+systemctl start docker
+systemctl enable docker
+usermod -aG docker ssm-user
+mkdir -p /usr/local/lib/docker/cli-plugins/
+curl -o /usr/local/lib/docker/cli-plugins/docker-compose -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+mkdir -p /opt/webapps/
+cd /opt/webapps/
+git clone https://github.com/mazgi-showcase/item-search-webapp-demo-202508.git
+
+cd /opt/webapps/item-search-webapp-demo-202508/
+test $(uname -s) = 'Linux' && {
+  echo -e "DOCKER_GID=$(getent group docker | cut -d : -f 3)"
+  echo -e "GID=$(id -g)"
+  echo -e "UID=$(id -u)"
+} >> .env || :
+cat<<EOE >> .env
+BIND_IP_ADDR=0.0.0.0
+PUBLIC_IP_ADDR_OR_FQDN=${public_ip_addr_or_fqdn}
+DATABASE_URL="${rds_url_main}"
+DATABASE_URL_REPLICA_0="${rds_url_main}"
+DATABASE_URL_REPLICA_1="${rds_url_replica}"
+EOE
+
+chown -R ec2-user:ec2-user /opt/webapps/
