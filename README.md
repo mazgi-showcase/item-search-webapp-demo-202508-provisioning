@@ -98,3 +98,5 @@ docker compose exec provisioning terraform apply
 ```console
 docker compose down
 ```
+
+![](docs/images/privisioning.gif)
