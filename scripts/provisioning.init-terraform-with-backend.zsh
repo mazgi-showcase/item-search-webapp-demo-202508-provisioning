@@ -70,8 +70,8 @@ updateAndPrepareTerraform() {
 
   # Detect terraform version
   rm -f .terraform-version
-  sudo tfenv install latest-allowed
-  sudo tfenv use latest-allowed
+  sudo tfenv install min-required
+  sudo tfenv use min-required
   terraform version -json | jq -r '.terraform_version' | tee -a /tmp/.terraform-version
   mv /tmp/.terraform-version .
 }
